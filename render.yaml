@@ -27,7 +27,20 @@ services:
       - key: REFRESH_TOKEN_EXPIRE_DAYS
         value: "7"
       - key: CORS_ORIGINS
-        value: '["https://wexa-analytics.vercel.app"]'
+        value: '["https://wexa-frontend.onrender.com"]'
+
+  - type: web
+    name: wexa-frontend
+    runtime: node
+    region: oregon
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18.18.0
+      - key: NEXT_PUBLIC_API_URL
+        value: https://wexa-api.onrender.com/api/v1
 
   - type: worker
     name: wexa-worker
