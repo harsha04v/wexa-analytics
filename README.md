@@ -221,3 +221,17 @@ All endpoints are prefixed with `/api/v1`.
 | `ACCESS_TOKEN_EXPIRE_MINUTES`| Access token TTL                | `30`          |
 | `REFRESH_TOKEN_EXPIRE_DAYS`  | Refresh token TTL               | `7`           |
 | `CORS_ORIGINS`               | Allowed frontend origins (JSON) | `["http://localhost:3000"]` |
+
+## Deployment
+
+The project is fully deployment-ready with a Render Blueprint (`render.yaml`) included. It defines all five services (API, frontend, worker, PostgreSQL, Redis) as infrastructure-as-code. To deploy:
+
+```bash
+# On Render: New → Blueprint → Connect this repo → Apply
+```
+
+The backend also includes:
+- `async_database_url` config property that auto-converts `postgres://` → `postgresql+asyncpg://` for cloud providers
+- Alembic migrations run automatically on deploy via `alembic upgrade head`
+- Celery worker configured as a separate background service
+- CORS and API URL configured via environment variables
