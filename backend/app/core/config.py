@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://localhost:6379/0"
 
-    # JWT
-    secret_key: str = "dev-secret-key-change-in-production"
+    # JWT — no default; .env must provide this
+    secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
