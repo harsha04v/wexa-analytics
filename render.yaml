@@ -1,0 +1,67 @@
+services:
+  - type: web
+    name: wexa-api
+    runtime: python
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wexa-db
+          property: connectionURI
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: wexa-redis
+          property: connectionURI
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+      - key: CORS_ORIGINS
+        value: '["https://wexa-analytics.vercel.app"]'
+
+  - type: worker
+    name: wexa-worker
+    runtime: python
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A app.celery_app worker --loglevel=info
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wexa-db
+          property: connectionURI
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: wexa-redis
+          property: connectionURI
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+
+  - type: redis
+    name: wexa-redis
+    region: oregon
+    plan: free
+    maxmemoryPolicy: allkeys-lfu
+
+databases:
+  - name: wexa-db
+    region: oregon
+    plan: free
+    databaseName: wexa
+    user: wexa
